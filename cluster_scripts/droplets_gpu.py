@@ -1,5 +1,5 @@
 import gpe_fns_gpu as gpe
-import cupy as cp
+import mlx.core as cp
 import numpy as np
 import sys
 import os
@@ -14,30 +14,30 @@ hbar = 1.05e-34 # J.s
 a0 = 5.29e-11 # m
 
 # read in simulation parameters
-sim_name = sys.argv[1]
+sim_name = "sys.argv[1]"
 print("Simulation name: ", sim_name)
-file_name = sim_name+".csv"
-with open(file_name, mode='r') as file:
-    csvReader = csv.DictReader(file)
-    for line in csvReader:
-        args = line
-print("read sim params:", args)
+file_name = sim_name + ".csv"
+# with open(file_name, mode='r') as file:
+#     csvReader = csv.DictReader(file)
+#     for line in csvReader:
+#         args = line
+# print("read sim params:", args)
 
 # simulation parameters
 
-Nx = int(args['Nx'])
-Ny = int(args['Ny'])
-Nz = int(args['Nz'])
-dt = float(args['dt'])
-Natoms = float(args['N'])
-Lx = float(args['Lx'])
-Ly = float(args['Ly'])
-Lz = float(args['Lz'])
+Nx = 2**8
+Ny = 2**8
+Nz = 2**7
+dt = 1e-2
+Natoms = 2e2
+Lx = 40
+Ly = 40
+Lz = 40
 
 grid_shape = [Nx, Ny, Nz]
-tolerance = float(args["tol"])
-iterations = int(args["iterations"])
-ascats = np.linspace(float(args["asmin"]),float(args["asmax"]),20)*a0
+tolerance = 1e-4
+iterations = int(1000)
+ascats = [66*a0]
 runs = 3
 
 for ascat in ascats:
@@ -45,12 +45,13 @@ for ascat in ascats:
     wx = 2*np.pi*57
     wy = 2*np.pi*390
     wz = 2*np.pi*98
-    add = 65.5*a0
+    add = 66*a0
     m = 166*1.66e-27
     g = 4*np.pi*hbar**2*ascat/m
     epsdd = add/ascat
     gdd = 4*np.pi*hbar**2*add/m
     Q5edd = 1+3*epsdd**2/2
+    Q5edd = 0
     
     gLHY = (32/(3*np.sqrt(np.pi)))*g*ascat**(3/2)*Q5edd
     

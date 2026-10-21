@@ -146,6 +146,7 @@ def run_simulation_ite(grid_shape, grid_boundaries, potential_propagator, kineti
                 plt.savefig(file_path)
     return grid, psi, max_iter, errs, mu1s, mu2s, Es, converged
 
+
 def run_simulation_rte(grid_shape, grid_boundaries, potential_propagator, kinetic_propagator, dt, iterations, guess1, guess2, iter_check=100, plot_all=False):
     grid,kgrid,psi = initialize_simulation(grid_shape, grid_boundaries, guess1, guess2)
     for i in range(iterations):
@@ -157,6 +158,7 @@ def run_simulation_rte(grid_shape, grid_boundaries, potential_propagator, kineti
                 plt_fns.plot_density_unnormalized_int(grid,np.abs(psi[1,:,:,:])**2, data_labels=("n2"))
 
     return grid, psi
+
 
 def set_up_animation(save_name,psi):
     writer1_context = writer2_context = nullcontext()
@@ -198,6 +200,7 @@ def set_up_animation(save_name,psi):
     writer2_context = writer2.saving(fig2, animation_name2, dpi=150)
     return (im1, title1, writer1, writer1_context), (im2, title2, writer2, writer2_context)
 
+
 def initialize_simulation(grid_shape, grid_boundaries, guess1, guess2, plot_guess=False):
     xmin, xmax, ymin, ymax, zmin, zmax = np.ravel(grid_boundaries)
     x = np.linspace(xmin,xmax,num=grid_shape[0])
@@ -217,6 +220,7 @@ def initialize_simulation(grid_shape, grid_boundaries, guess1, guess2, plot_gues
         plt.show()
     print("simulation initialized")
     return (grid,kgrid,psi)
+
 
 def imaginary_time_propagation_step(psi, grid, kgrid, potential_propagator, kinetic_propagator, dt):
     x, y, z = grid
@@ -243,9 +247,9 @@ def imaginary_time_propagation_step(psi, grid, kgrid, potential_propagator, kine
         psi_norm = np.array([psi_norm[0], np.inf])
     return psi, psi_norm
 
+
 def real_time_propagation_step(psi, grid, kgrid, potential_propagator, kinetic_propagator, dt):
     return imaginary_time_propagation_step(psi, grid, kgrid, potential_propagator, kinetic_propagator, 1j*dt)
-
 
 
 ### propagators
@@ -258,6 +262,7 @@ def single_dipolar_potential_propagator(psi, grid, kgrid, dt, gammas, anisotropy
     potential1 = dipolar_potential(psi1,grid,kgrid,gamma11,anisotropy,dipole_strength,dipole_direction)+gamma12*np.abs(psi2)**2
     potential2 = harmonic_potential(psi2,grid,kgrid,gamma22,anisotropy,scale_factor=pol_ratio,sag=sag)+gamma21*np.abs(psi1)**2
     return np.stack((np.exp(-dt*potential1)*psi1, np.exp(-dt*potential2)*psi2),axis=0)
+
 
 def double_dipolar_potential_propagator(psi, grid, kgrid, dt, gammas, anisotropy, pol_ratio, dipole_strengths, dipole_direction, sag=0):
     # propagator for two dipolar species 
@@ -277,6 +282,7 @@ def double_dipolar_potential_propagator(psi, grid, kgrid, dt, gammas, anisotropy
     potential1 = dipolar1+harmonic_potential(psi1,grid,kgrid,gamma11,anisotropy)+gamma12*np.abs(psi2)**2
     potential2 = dipolar2+harmonic_potential(psi2,grid,kgrid,gamma22,anisotropy,pol_ratio,sag=sag)+gamma21*np.abs(psi1)**2
     return np.stack((np.exp(-dt*potential1)*psi1, np.exp(-dt*potential2)*psi2),axis=0)
+
 
 def double_dipolar_potential_cutoff_propagator(psi, grid, kgrid, dt, gammas, anisotropy, pol_ratio, dipole_strengths, dipole_direction, sag=0):
     # propagator for two dipolar species, including a cutoff to remove spurious effects
@@ -309,6 +315,7 @@ def harmonic_potential_propagator(psi, grid, kgrid, dt, gammas, anisotropy, pol_
     potential2 = harmonic_potential(psi2,grid,kgrid,gamma22,anisotropy,pol_ratio)+gamma21*np.abs(psi1)**2
     return np.stack((np.exp(-dt*potential1)*psi1, np.exp(-dt*potential2)*psi2),axis=0)
 
+
 def box_potential_propagator(psi, grid, kgrid, dt, gammas, pad_fraction):
     # propagator for nondipolar species in box potential
     psi1 = psi[0,:,:,:]
@@ -324,6 +331,7 @@ def box_potential_propagator(psi, grid, kgrid, dt, gammas, pad_fraction):
     psi1[int(Nx*pad_fraction/2):int(Nx*(1-pad_fraction/2)),int(Ny*pad_fraction/2):int(Ny*(1-pad_fraction/2)),int(Nz*pad_fraction/2):int(Nz*(1-pad_fraction/2)) ] = psi1_fill[int(Nx*pad_fraction/2):int(Nx*(1-pad_fraction/2)),int(Ny*pad_fraction/2):int(Ny*(1-pad_fraction/2)),int(Nz*pad_fraction/2):int(Nz*(1-pad_fraction/2)) ]
     psi2[int(Nx*pad_fraction/2):int(Nx*(1-pad_fraction/2)),int(Ny*pad_fraction/2):int(Ny*(1-pad_fraction/2)),int(Nz*pad_fraction/2):int(Nz*(1-pad_fraction/2)) ] = psi2_fill[int(Nx*pad_fraction/2):int(Nx*(1-pad_fraction/2)),int(Ny*pad_fraction/2):int(Ny*(1-pad_fraction/2)),int(Nz*pad_fraction/2):int(Nz*(1-pad_fraction/2)) ]
     return np.stack((psi1, psi2),axis=0)
+
 
 def dipole_potential_2D_box_propagator(psi, grid, kgrid, dt, gammas, pol_ratio, dipole_strengths, dipole_direction, pad_fraction):
     # propagator for dipolar species with harmonic trap in z and box in x, y; uses a cutoff
@@ -370,7 +378,8 @@ def box_kinetic_propagator(psi, grid, kgrid, dt, mass_ratio, pad_fraction):
     psi1[int(Nx*pad_fraction/2):int(Nx*(1-pad_fraction/2)),int(Ny*pad_fraction/2):int(Ny*(1-pad_fraction/2)),int(Nz*pad_fraction/2):int(Nz*(1-pad_fraction/2)) ] = psi1_fill[int(Nx*pad_fraction/2):int(Nx*(1-pad_fraction/2)),int(Ny*pad_fraction/2):int(Ny*(1-pad_fraction/2)),int(Nz*pad_fraction/2):int(Nz*(1-pad_fraction/2)) ]
     psi2[int(Nx*pad_fraction/2):int(Nx*(1-pad_fraction/2)),int(Ny*pad_fraction/2):int(Ny*(1-pad_fraction/2)),int(Nz*pad_fraction/2):int(Nz*(1-pad_fraction/2)) ] = psi2_fill[int(Nx*pad_fraction/2):int(Nx*(1-pad_fraction/2)),int(Ny*pad_fraction/2):int(Ny*(1-pad_fraction/2)),int(Nz*pad_fraction/2):int(Nz*(1-pad_fraction/2)) ]
     return np.stack((psi1, psi2),axis=0)
-    
+
+
 def box_2D_kinetic_propagator(psi, grid, kgrid, dt, mass_ratio, pad_fraction):
     # kinetic energy propagator with harmonic trap in z and box in x, y
     fft_psi = np.fft.fftn(psi, axes=(1,2,3))
@@ -388,6 +397,7 @@ def box_2D_kinetic_propagator(psi, grid, kgrid, dt, mass_ratio, pad_fraction):
     psi2[int(Ny*pad_fraction/2):int(Ny*(1-pad_fraction/2)),int(Nx*pad_fraction/2):int(Nx*(1-pad_fraction/2)),:] = psi2_fill[int(Ny*pad_fraction/2):int(Ny*(1-pad_fraction/2)),int(Nx*pad_fraction/2):int(Nx*(1-pad_fraction/2)),:]
     return np.stack((psi1, psi2),axis=0)
 
+
 def box_1D_kinetic_propagator(psi, grid, kgrid, dt, mass_ratio, pad_fraction):
      # kinetic energy propagator with harmonic trap in y, z and box in x
     fft_psi = np.fft.fftn(psi, axes=(1,2,3))
@@ -404,6 +414,7 @@ def box_1D_kinetic_propagator(psi, grid, kgrid, dt, mass_ratio, pad_fraction):
     psi1[:,int(Nx*pad_fraction/2):int(Nx*(1-pad_fraction/2)),:] = psi1_fill[:,int(Nx*pad_fraction/2):int(Nx*(1-pad_fraction/2)),:]
     psi2[:,int(Nx*pad_fraction/2):int(Nx*(1-pad_fraction/2)),:] = psi2_fill[:,int(Nx*pad_fraction/2):int(Nx*(1-pad_fraction/2)),:]
     return np.stack((psi1, psi2),axis=0)
+
 
 def dipole_potential_1D_box_propagator(psi, grid, kgrid, dt, gammas, pol_ratio, dipole_strengths, dipole_direction, pad_fraction):
     # propagator for dipolar species with harmonic trap in y, z and box in x; uses a cutoff
@@ -432,6 +443,7 @@ def dipole_potential_1D_box_propagator(psi, grid, kgrid, dt, gammas, pol_ratio, 
     psi1[:,int(Nx*pad_fraction/2):int(Nx*(1-pad_fraction/2)),:] = psi1_fill[:,int(Nx*pad_fraction/2):int(Nx*(1-pad_fraction/2)),:]
     psi2[:,int(Nx*pad_fraction/2):int(Nx*(1-pad_fraction/2)),:] = psi2_fill[:,int(Nx*pad_fraction/2):int(Nx*(1-pad_fraction/2)),:]
     return np.stack((psi1, psi2),axis=0)
+
 
 def double_dipolar_potential_cutoff_intra_LHY_propagator(psi, grid, kgrid, dt, gammas, anisotropy, pol_ratio, dipole_strengths, dipole_direction, LHY_factors, sag=0):
     # propagator for two dipolar species + LHY correction calculated without interspecies term
@@ -488,6 +500,7 @@ def dipole_potential_1D_box_harmonic_propagator(psi, grid, kgrid, dt, gammas, po
 def harmonic_potential(psi,grid,kgrid,gamma,anisotropy,scale_factor=1,sag=0):
     x, y, z = grid
     return 1/2*scale_factor*(anisotropy[0]*x**2+anisotropy[1]*y**2+anisotropy[2]*(z+sag)**2)+gamma*np.abs(psi)**2
+
 
 def dipolar_potential(psi,grid,kgrid,gamma,anisotropy,dipole_strength,dipole_direction):
     x, y, z = grid
@@ -556,6 +569,7 @@ def energy_functional_single_dipolar(psi,grid,kgrid,gammas,anisotropy, pol_ratio
     energies = (float(KE), float(harmonic), float(contact), float(dipolar), float(E))
     return labels, energies
 
+
 def energy_functional_double_dipolar(psi,grid,kgrid,gammas,anisotropy, pol_ratio, mass_ratio, dipole_strengths, dipole_direction, atom_nums, sag=0):
     N1, N2 = atom_nums
     fft_psi = np.fft.fftn(psi, axes=(1,2,3))
@@ -603,6 +617,7 @@ def energy_functional_double_dipolar(psi,grid,kgrid,gammas,anisotropy, pol_ratio
     labels = ("KE", "harmonic", "contact", "dipolar", "E")
     energies = (float(KE), float(harmonic), float(contact), float(dipolar), float(E))
     return labels, energies
+
 
 def energy_functional_double_dipolar_cutoff(psi,grid,kgrid,gammas,anisotropy, pol_ratio, mass_ratio, dipole_strengths, dipole_direction, atom_nums, sag=0):
     N1, N2 = atom_nums
@@ -660,6 +675,7 @@ def energy_functional_double_dipolar_cutoff(psi,grid,kgrid,gammas,anisotropy, po
     energies = (float(KE), float(harmonic), float(contact), float(dipolar), float(E))
     return labels, energies
 
+
 def energy_functional_double_dipolar_cutoff_intra_LHY(psi,grid,kgrid,gammas,anisotropy, pol_ratio, mass_ratio, dipole_strengths, dipole_direction, atom_nums, LHY_factors, sag=0):
     psi1 = psi[0,:,:,:]
     psi2 = psi[1,:,:,:]
@@ -677,6 +693,7 @@ def energy_functional_double_dipolar_cutoff_intra_LHY(psi,grid,kgrid,gammas,anis
     labels = (*labels[:-1], "LHY", "E")
     energies = (*energies[:-1], float(E_LHY1+E_LHY2), E)
     return labels, energies
+
     
 def Gaussian_ansatz(grid_shape, grid_boundaries, sigmax, sigmay, sigmaz, noise_level=0):
     """
@@ -699,6 +716,7 @@ def Gaussian_ansatz(grid_shape, grid_boundaries, sigmax, sigmay, sigmaz, noise_l
     dLx, dLy, dLz = Lx/(Nx-1), Ly/(Ny-1), Lz/(Nz-1)
     psi_norm = np.sum(np.abs(psi)**2*dLx*dLy*dLz)
     return psi/np.sqrt(psi_norm)
+
 
 def modulated_Gaussian(grid_shape, grid_boundaries, sigmax, sigmay, sigmaz, kx, ky, kz, noise_level=0):
     """
@@ -742,6 +760,7 @@ def random_guess(grid_shape, grid_boundaries):
     psi_norm = np.sqrt(np.sum(np.abs(psi)**2*dLx*dLy*dLz))
     return psi/psi_norm
 
+
 def random_guess_sym(grid_shape, grid_boundaries):
     """
     Psi with randomized density profile in k space with x -> -x, y -> -y, z -> -z symmetry imposed
@@ -781,6 +800,7 @@ def perlin_guess(grid_shape, grid_boundaries, res=(2,2,2)):
     # psi = gaussian_filter(psi, 1)
     psi_norm = np.sqrt(np.sum(np.abs(psi)**2*dLx*dLy*dLz))
     return psi/psi_norm
+
 
 def thomas_fermi_density(grid_shape, grid_boundaries, gamma,anisotropy):
     """Calculates Thomas Fermi profile

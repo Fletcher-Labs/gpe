@@ -9,7 +9,7 @@ from scipy import fft as fftw
 from tqdm import tqdm
 
 if gpu:
-    import cupy as np
+    import mlx.core as np
 # import pyfftw.interfaces as fftw
 
 # physical constants
@@ -101,17 +101,18 @@ grid_boundaries = [-Lx/2, Lx/2, -Ly/2, Ly/2, -Lz/2, Lz/2]
 # print("d: ", d)
 # print(out[p,q,r,s])
 
-potential_fn = lambda psi, grid, kgrid: gpe.dipolar_potential_LHY_cutoff(psi,grid,kgrid,gamma,anisotropy,dipole_strength,dipole_direction,LHY_strength)
-energy_fn = lambda psi, grid, kgrid: gpe.energy_functional_dipole_LHY(psi,grid,kgrid,gamma,anisotropy,dipole_strength,dipole_direction,LHY_strength)
+potential_fn = lambda psi, grid, kgrid: gpe.harmonic(grid, anisotropy) + gpe.contact(gamma, psi) + gpe.ddi(psi, kgrid, dipole_strength, dipole_direction)
+# energy_fn = lambda psi, grid, kgrid: gpe.energy_functional_dipole_LHY(psi,grid,kgrid,gamma,anisotropy,dipole_strength,dipole_direction,LHY_strength)
+energy_fn = None
 guess = gpe.Gaussian_ansatz(grid_shape, grid_boundaries, 0.5, 0.55, 2.55, 0.1)
 start_time = time.time()
-save_folder="results/RF_as="+str(int(ascat/a0)) + "a0"
+save_folder="results/"
 save_name = save_folder+"/RF_as="+str(int(ascat/a0)) + "a0"
 grid, psi, max_iter_LHY, errs, mus, converged, Es = gpe.run_simulation_ite(grid_shape,grid_boundaries,potential_fn,time_step,iterations,guess,tolerance=tolerance,iter_check=10, energy_fn=energy_fn, save_name=save_name)
 end_time = time.time()
 print("elapsed time:", end_time-start_time, "s")
 print("converged:", converged)
-print("energy:", np.real(Es[-1][-1]))
+# print("energy:", np.real(Es[-1][-1]))
 psi_fft = fftw.fftshift(fftw.fftn(psi))
 xmin, xmax, ymin, ymax, zmin, zmax = grid_boundaries
 kx = 2*np.pi*fftw.fftshift(fftw.fftfreq(Nx)*Nx/(xmax-xmin))

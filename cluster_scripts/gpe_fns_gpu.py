@@ -1,8 +1,8 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.optimize import minimize_scalar
-from cupy import fft as fftw
-import cupy as cp
+from mlx.core import fft as fftw
+import mlx.core as cp
 from plot_fns_gpu import plot_density_unnormalized_int
 import os
 

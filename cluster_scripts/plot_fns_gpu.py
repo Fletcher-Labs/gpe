@@ -1,4 +1,4 @@
-import cupy as cp
+import mlx.core as cp
 from matplotlib import pyplot as plt
 import os
 

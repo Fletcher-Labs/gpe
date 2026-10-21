@@ -106,6 +106,7 @@ grid_boundaries = [-Lx/2, Lx/2, -Ly/2, Ly/2, -Lz/2, Lz/2]
 ### GP solver
 potential_fn = lambda psi, grid, kgrid: gpe.dipolar_potential_LHY_cutoff(psi,grid,kgrid,gamma,anisotropy,dipole_strength,dipole_direction,LHY_strength)
 energy_fn = lambda psi, grid, kgrid: gpe.energy_functional_dipole_LHY(psi,grid,kgrid,gamma,anisotropy,dipole_strength,dipole_direction,LHY_strength)
+energy_fn = None
 guess = gpe.Gaussian_ansatz(grid_shape, grid_boundaries, 0.5, 0.55, 2.55, 0.1)
 start_time = time.time()
 save_folder="results/Er_BEC"
